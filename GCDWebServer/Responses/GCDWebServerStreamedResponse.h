@@ -49,6 +49,13 @@ typedef NSData* _Nullable (^GCDWebServerStreamBlock)(NSError** error);
 typedef void (^GCDWebServerAsyncStreamBlock)(GCDWebServerBodyReaderCompletionBlock completionBlock);
 
 /**
+ * The GCDWebServerAsyncStreamClosedBlock is called when the response has
+ * been closed. This block can be useful to cleanup any resources that have
+ * been registered or allocated.
+ */
+typedef void (^GCDWebServerAsyncStreamClosedBlock)(void);
+
+/**
  *  The GCDWebServerStreamedResponse subclass of GCDWebServerResponse streams
  *  the body of the HTTP response using a GCD block.
  */
@@ -66,6 +73,11 @@ typedef void (^GCDWebServerAsyncStreamBlock)(GCDWebServerBodyReaderCompletionBlo
 + (instancetype)responseWithContentType:(NSString*)type asyncStreamBlock:(GCDWebServerAsyncStreamBlock)block;
 
 /**
+ *  Creates a response with async streamed data and a given content type and a closed block.
+ */
++ (instancetype)responseWithContentType:(NSString*)type asyncStreamBlock:(GCDWebServerAsyncStreamBlock)block closedBlock:(GCDWebServerAsyncStreamClosedBlock)closedBlock;
+
+/**
  *  Initializes a response with streamed data and a given content type.
  */
 - (instancetype)initWithContentType:(NSString*)type streamBlock:(GCDWebServerStreamBlock)block;
@@ -74,6 +86,11 @@ typedef void (^GCDWebServerAsyncStreamBlock)(GCDWebServerBodyReaderCompletionBlo
  *  This method is the designated initializer for the class.
  */
 - (instancetype)initWithContentType:(NSString*)type asyncStreamBlock:(GCDWebServerAsyncStreamBlock)block;
+
+/**
+ *  Initializes a response with streamed data, a given content type and a given closed block.
+ */
+- (instancetype)initWithContentType:(NSString*)type asyncStreamBlock:(GCDWebServerAsyncStreamBlock)block closedBlock:(GCDWebServerAsyncStreamClosedBlock)closedBlock;
 
 @end
 

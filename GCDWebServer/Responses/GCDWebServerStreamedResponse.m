@@ -33,6 +33,7 @@
 
 @implementation GCDWebServerStreamedResponse {
   GCDWebServerAsyncStreamBlock _block;
+  GCDWebServerAsyncStreamClosedBlock _closedBlock;
 }
 
 @dynamic contentType;
@@ -43,6 +44,10 @@
 
 + (instancetype)responseWithContentType:(NSString*)type asyncStreamBlock:(GCDWebServerAsyncStreamBlock)block {
   return [(GCDWebServerStreamedResponse*)[[self class] alloc] initWithContentType:type asyncStreamBlock:block];
+}
+
++ (nonnull instancetype)responseWithContentType:(nonnull NSString *)type asyncStreamBlock:(nonnull GCDWebServerAsyncStreamBlock)block closedBlock:(nonnull GCDWebServerAsyncStreamClosedBlock)closedBlock {
+  return [(GCDWebServerStreamedResponse*)[[self class] alloc] initWithContentType:type asyncStreamBlock:block closedBlock:closedBlock];
 }
 
 - (instancetype)initWithContentType:(NSString*)type streamBlock:(GCDWebServerStreamBlock)block {
@@ -63,6 +68,13 @@
   return self;
 }
 
+- (instancetype)initWithContentType:(nonnull NSString *)type asyncStreamBlock:(nonnull GCDWebServerAsyncStreamBlock)block closedBlock:(nonnull GCDWebServerAsyncStreamClosedBlock)closedBlock {
+  if ((self = [self initWithContentType:type asyncStreamBlock:block])) {
+    _closedBlock = [closedBlock copy];
+  }
+  return self;
+}
+
 - (void)asyncReadDataWithCompletion:(GCDWebServerBodyReaderCompletionBlock)block {
   _block(block);
 }
@@ -71,6 +83,13 @@
   NSMutableString* description = [NSMutableString stringWithString:[super description]];
   [description appendString:@"\n\n<STREAM>"];
   return description;
+}
+
+- (void)close{
+  if (_closedBlock) {
+    _closedBlock();
+  }
+  [super close];
 }
 
 @end
